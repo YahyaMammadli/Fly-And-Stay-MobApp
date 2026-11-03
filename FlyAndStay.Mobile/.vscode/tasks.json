@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Expo: start (dev client)",
+      "type": "shell",
+      "command": "npx expo start --dev-client --port 8081",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "focus": true },
+      "runOptions": { "runOn": "folderOpen" }
+    },
+    {
+      "label": "Android: forward Metro and API ports",
+      "type": "shell",
+      "command": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:5080 tcp:5080",
+      "problemMatcher": []
+    }
+  ]
+}
