@@ -1,0 +1,62 @@
+@host = http://localhost:5080
+
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@flyandstay.app",
+  "password": "Admin12345!"
+}
+
+###
+
+POST {{host}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "<paste refreshToken from login>"
+}
+
+###
+
+POST {{host}}/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "admin@flyandstay.app"
+}
+
+###
+
+GET {{host}}/api/flights/search?from=GYD&to=IST&date=2026-11-10&sort=price_asc
+
+###
+
+GET {{host}}/api/admin/users
+Authorization: Bearer <paste accessToken>
+
+###
+
+POST {{host}}/api/devices
+Authorization: Bearer <paste accessToken>
+Content-Type: application/json
+
+{
+  "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+  "platform": "android"
+}
+
+###
+
+POST {{host}}/api/devices/test
+Authorization: Bearer <paste accessToken>
+
+###
+
+GET {{host}}/api/notifications
+Authorization: Bearer <paste accessToken>
+
+###
+
+GET {{host}}/api/notifications/unread-count
+Authorization: Bearer <paste accessToken>
