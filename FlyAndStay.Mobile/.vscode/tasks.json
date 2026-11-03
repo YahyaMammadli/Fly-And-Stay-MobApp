@@ -7,8 +7,7 @@
       "command": "npx expo start --dev-client --port 8081",
       "isBackground": true,
       "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "dedicated", "focus": true },
-      "runOptions": { "runOn": "folderOpen" }
+      "presentation": { "reveal": "always", "panel": "dedicated", "focus": true }
     },
     {
       "label": "Android: forward Metro and API ports",
