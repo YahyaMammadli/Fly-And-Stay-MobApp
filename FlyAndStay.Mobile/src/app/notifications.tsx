@@ -11,10 +11,12 @@ import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
 import { usePush } from "@/hooks/use-push";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function NotificationsScreen() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { refreshUnread } = usePush();
@@ -48,12 +50,12 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScreenHeader
-        title="Notifications"
+        title={t("Notifications")}
         fallbackHref="/home"
         right={
           hasUnread ? (
             <Pressable onPress={markAll} hitSlop={8}>
-              <Text style={styles.markAll}>Mark all read</Text>
+              <Text style={styles.markAll}>{t("Mark all read")}</Text>
             </Pressable>
           ) : undefined
         }
@@ -68,8 +70,8 @@ export default function NotificationsScreen() {
         skeletonHeight={96}
         keyExtractor={(n) => n.id}
         contentContainerStyle={styles.list}
-        emptyTitle="No notifications yet"
-        emptyText="Booking updates and flight reminders will show up here."
+        emptyTitle={t("No notifications yet")}
+        emptyText={t("Booking updates and flight reminders will show up here.")}
         renderItem={({ item }) => <NotificationCard notification={item} onPress={() => open(item)} />}
       />
     </SafeAreaView>

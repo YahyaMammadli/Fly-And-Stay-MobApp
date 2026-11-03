@@ -5,8 +5,9 @@ import { StyleSheet, Text, View } from "react-native";
 import { Booking } from "@/api/types";
 import Button from "@/components/shared/ui/button";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
-import { formatLong, formatMoney, formatRange, formatTime, plural } from "@/utils/dates";
+import { formatLong, formatRange, formatTime, plural } from "@/utils/dates";
 
 type Props = {
   booking: Booking;
@@ -17,6 +18,7 @@ type Props = {
 
 export default function TripCard({ booking, canCancel, cancelling, onCancel }: Props) {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [confirming, setConfirming] = useState(false);
   const cancelled = booking.status === "Cancelled";
@@ -74,10 +76,10 @@ export default function TripCard({ booking, canCancel, cancelling, onCancel }: P
 
       {canCancel && confirming && (
         <View style={styles.confirm}>
-          <Text style={styles.confirmText}>Cancel this booking? This can&apos;t be undone.</Text>
+          <Text style={styles.confirmText}>{t("Cancel this booking? This can't be undone.")}</Text>
           <View style={styles.confirmButtons}>
-            <Button title="Keep it" variant="outline" style={styles.small} onPress={() => setConfirming(false)} />
-            <Button title="Yes, cancel" variant="danger" style={styles.small} loading={cancelling} onPress={onCancel} />
+            <Button title={t("Keep it")} variant="outline" style={styles.small} onPress={() => setConfirming(false)} />
+            <Button title={t("Yes, cancel")} variant="danger" style={styles.small} loading={cancelling} onPress={onCancel} />
           </View>
         </View>
       )}

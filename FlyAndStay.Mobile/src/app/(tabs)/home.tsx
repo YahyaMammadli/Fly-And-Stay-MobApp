@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,6 +13,8 @@ import Catalog from "@/components/shared/ui/catalog";
 import { ThemeColors } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
 import { useFetch } from "@/hooks/use-fetch";
+import { useLocation } from "@/hooks/use-location";
+import { usePreferences } from "@/hooks/use-preferences";
 import { usePush } from "@/hooks/use-push";
 import { useTheme } from "@/hooks/use-theme";
 import { useTrip } from "@/hooks/use-trip";
@@ -26,12 +28,19 @@ function greeting() {
 
 export default function HomeScreen() {
   const { colors, isDark, toggleTheme } = useTheme();
+  const { t } = usePreferences();
+  const { requestOnce } = useLocation();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { user } = useAuth();
   const { updateSearch } = useTrip();
   const { unreadCount } = usePush();
   const { data, loading, error, reload } = useFetch((signal) => travelApi.destinations(signal), []);
+
+  // Ask for the location once, so "From" and the currency can follow where the user is.
+  useEffect(() => {
+    void requestOnce();
+  }, [requestOnce]);
 
   const openDestination = (d: Destination) => {
     updateSearch({ to: { code: d.airportCode, city: d.city, country: d.country, name: d.airportName } });
@@ -46,9 +55,9 @@ export default function HomeScreen() {
             <Avatar size={46} />
           </Pressable>
           <View style={styles.headerText}>
-            <Text style={styles.greeting}>{greeting()}</Text>
+            <Text style={styles.greeting}>{t(greeting())}</Text>
             <Text style={styles.name} numberOfLines={1}>
-              {user?.name ?? "Traveler"} 👋
+              {user?.name ?? t("Traveler")} 👋
             </Text>
           </View>
           <Pressable
@@ -56,7 +65,7 @@ export default function HomeScreen() {
             onPress={() => router.push("/notifications")}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel="Notifications"
+            accessibilityLabel={t("Notifications")}
           >
             <Ionicons name={unreadCount > 0 ? "notifications" : "notifications-outline"} size={20} color={colors.primary} />
             {unreadCount > 0 && (
@@ -70,7 +79,7 @@ export default function HomeScreen() {
             onPress={toggleTheme}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel={isDark ? "Switch to light theme" : "Switch to dark theme"}
+            accessibilityLabel={t(isDark ? "Switch to light theme" : "Switch to dark theme")}
           >
             <Ionicons name={isDark ? "sunny" : "moon"} size={20} color={colors.primary} />
           </Pressable>
@@ -80,8 +89,8 @@ export default function HomeScreen() {
           <View style={styles.circleLarge} />
           <View style={styles.circleSmall} />
           <Ionicons name="airplane" size={120} color="rgba(255,255,255,0.12)" style={styles.heroPlane} />
-          <Text style={styles.heroTitle}>Where to next?</Text>
-          <Text style={styles.heroSub}>Flights and hotels in one place</Text>
+          <Text style={styles.heroTitle}>{t("Where to next?")}</Text>
+          <Text style={styles.heroSub}>{t("Flights and hotels in one place")}</Text>
         </View>
 
         <View style={styles.searchCard}>
@@ -94,8 +103,8 @@ export default function HomeScreen() {
               <Ionicons name="bed" size={22} color={colors.primary} />
             </View>
             <View style={styles.bannerText}>
-              <Text style={styles.bannerTitle}>Find your perfect stay</Text>
-              <Text style={styles.bannerSub}>Hotels in top destinations</Text>
+              <Text style={styles.bannerTitle}>{t("Find your perfect stay")}</Text>
+              <Text style={styles.bannerSub}>{t("Hotels in top destinations")}</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.muted} />
           </Pressable>
@@ -105,15 +114,15 @@ export default function HomeScreen() {
               <Ionicons name="airplane" size={22} color={colors.primary} />
             </View>
             <View style={styles.bannerText}>
-              <Text style={styles.bannerTitle}>Airlines &amp; fleet</Text>
-              <Text style={styles.bannerSub}>See which aircraft each airline flies</Text>
+              <Text style={styles.bannerTitle}>{t("Airlines & fleet")}</Text>
+              <Text style={styles.bannerSub}>{t("See which aircraft each airline flies")}</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.muted} />
           </Pressable>
         </View>
 
         <View style={styles.sectionRow}>
-          <Text style={styles.section}>Popular destinations</Text>
+          <Text style={styles.section}>{t("Popular destinations")}</Text>
         </View>
         <Catalog
           horizontal
@@ -124,8 +133,8 @@ export default function HomeScreen() {
           skeletonHeight={150}
           keyExtractor={(d) => d.airportCode}
           contentContainerStyle={styles.destinations}
-          emptyTitle="No destinations yet"
-          emptyText="Flights will appear here when they are available."
+          emptyTitle={t("No destinations yet")}
+          emptyText={t("Flights will appear here when they are available.")}
           renderItem={({ item }) => <DestinationCard item={item} onPress={() => openDestination(item)} />}
         />
       </ScrollView>

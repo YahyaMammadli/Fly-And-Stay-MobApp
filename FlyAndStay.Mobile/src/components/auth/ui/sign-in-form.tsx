@@ -7,6 +7,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 import { getErrorMessage } from "@/api/client";
 import { ThemeColors } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import AuthField from "./auth-field";
 import AuthLayout from "./auth-layout";
@@ -14,6 +15,7 @@ import { signInSchema, SignInSchema } from "./auth.schema";
 
 export default function SignInForm() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { signIn } = useAuth();
   const [formError, setFormError] = useState("");
@@ -40,13 +42,13 @@ export default function SignInForm() {
 
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Log in to continue your journey"
+      title={t("Welcome back")}
+      subtitle={t("Log in to continue your journey")}
       footer={
         <Text style={styles.footerText}>
-          Don&apos;t have an account?{" "}
+          {t("Don't have an account?")}{" "}
           <Text style={styles.link} onPress={() => router.replace("/auth/sign-up")}>
-            Sign up
+            {t("Sign up")}
           </Text>
         </Text>
       }
@@ -57,7 +59,7 @@ export default function SignInForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthField
             icon="mail-outline"
-            placeholder="Email Address"
+            placeholder={t("Email Address")}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -75,7 +77,7 @@ export default function SignInForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthField
             icon="lock-closed-outline"
-            placeholder="Password"
+            placeholder={t("Password")}
             password
             autoCapitalize="none"
             autoComplete="current-password"
@@ -88,20 +90,20 @@ export default function SignInForm() {
       />
 
       <Text style={styles.forgot} onPress={() => router.push("/auth/forgot-password")}>
-        Forgot password?
+        {t("Forgot password?")}
       </Text>
 
       {!!formError && <Text style={styles.formError}>{formError}</Text>}
 
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => void handleSubmit(onSubmit)()}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.buttonText}>Log In</Text>
+          <Text style={styles.buttonText}>{t("Log In")}</Text>
         )}
       </Pressable>
     </AuthLayout>

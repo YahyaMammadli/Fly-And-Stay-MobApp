@@ -9,14 +9,16 @@ import Button from "@/components/shared/ui/button";
 import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import { useTrip } from "@/hooks/use-trip";
-import { formatDuration, formatLong, formatMoney, formatTime, plural } from "@/utils/dates";
+import { formatDuration, formatLong, formatTime } from "@/utils/dates";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
 export default function FlightDetailsScreen() {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -43,7 +45,7 @@ export default function FlightDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <ScreenHeader title="Flight Details" fallbackHref="/flights" />
+      <ScreenHeader title={t("Flight Details")} fallbackHref="/flights" />
 
       {loading && !flight ? (
         <View style={styles.center}>
@@ -53,7 +55,7 @@ export default function FlightDetailsScreen() {
         <View style={styles.center}>
           <Ionicons name="cloud-offline-outline" size={36} color={colors.muted} />
           <Text style={styles.errorText}>{error ?? "Flight not found."}</Text>
-          <Button title="Try again" variant="outline" onPress={reload} style={{ marginTop: 12 }} />
+          <Button title={t("Try again")} variant="outline" onPress={reload} style={{ marginTop: 12 }} />
         </View>
       ) : (
         <>
@@ -110,33 +112,34 @@ export default function FlightDetailsScreen() {
               ))}
             </View>
 
-            <Text style={styles.section}>Price Summary</Text>
+            <Text style={styles.section}>{t("Price Summary")}</Text>
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Base fare</Text>
+              <Text style={styles.priceLabel}>{t("Base fare")}</Text>
               <Text style={styles.priceValue}>{formatMoney(flight.fare)}</Text>
             </View>
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Taxes &amp; fees</Text>
+              <Text style={styles.priceLabel}>{t("Taxes & fees")}</Text>
               <Text style={styles.priceValue}>{formatMoney(flight.taxes)}</Text>
             </View>
             {passengers > 1 && (
               <View style={styles.priceRow}>
-                <Text style={styles.priceLabel}>Passengers</Text>
+                <Text style={styles.priceLabel}>{t("Passengers")}</Text>
                 <Text style={styles.priceValue}>× {passengers}</Text>
               </View>
             )}
             <View style={styles.divider} />
             <View style={styles.priceRow}>
-              <Text style={styles.total}>Total price</Text>
+              <Text style={styles.total}>{t("Total price")}</Text>
               <Text style={styles.total}>{formatMoney(flight.price * passengers)}</Text>
             </View>
             <Text style={styles.hint}>
-              {formatMoney(flight.price)} per passenger · {plural(passengers, "passenger")}
+              {t("{price} per passenger", { price: formatMoney(flight.price) })} ·{" "}
+              {t(passengers === 1 ? "{count} Passenger" : "{count} Passengers", { count: passengers })}
             </Text>
           </ScrollView>
 
           <View style={styles.footer}>
-            <Button title="Continue" onPress={proceed} />
+            <Button title={t("Continue")} onPress={proceed} />
           </View>
         </>
       )}

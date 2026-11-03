@@ -8,6 +8,7 @@ import { AirlineBrand } from "@/api/types";
 import Catalog from "@/components/shared/ui/catalog";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import Button from "@/components/shared/ui/button";
 
@@ -19,6 +20,7 @@ type Props = {
 
 export default function Models({ selectedSlug, brand }: Props) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
 
@@ -43,8 +45,8 @@ export default function Models({ selectedSlug, brand }: Props) {
       header={header}
       keyExtractor={(m) => m.slug}
       contentContainerStyle={styles.list}
-      emptyTitle="Choose an airline"
-      emptyText="Tap an airline above to see its aircraft."
+      emptyTitle={t("Choose an airline")}
+      emptyText={t("Tap an airline above to see its aircraft.")}
       renderItem={({ item }) => (
         <View style={styles.card}>
           <View style={styles.cardTop}>
@@ -60,9 +62,9 @@ export default function Models({ selectedSlug, brand }: Props) {
           </View>
 
           <View style={styles.stats}>
-            <Stat label="Seats" value={String(item.seats)} />
-            <Stat label="Range" value={`${item.rangeKm.toLocaleString("en-US")} km`} />
-            <Stat label="Cruise" value={`${item.cruiseSpeedKmh} km/h`} />
+            <Stat label={t("Seats")} value={String(item.seats)} />
+            <Stat label={t("Range")} value={`${item.rangeKm.toLocaleString("en-US")} km`} />
+            <Stat label={t("Cruise")} value={`${item.cruiseSpeedKmh} km/h`} />
           </View>
 
           <Button

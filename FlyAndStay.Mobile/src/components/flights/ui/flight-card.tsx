@@ -4,13 +4,15 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Flight } from "@/api/types";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
-import { formatDuration, formatMoney, formatTime } from "@/utils/dates";
+import { formatDuration, formatTime } from "@/utils/dates";
 
 type Props = { flight: Flight; onSelect: () => void };
 
 export default function FlightCard({ flight, onSelect }: Props) {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
@@ -55,7 +57,7 @@ export default function FlightCard({ flight, onSelect }: Props) {
           </View>
         </View>
         <View style={styles.select}>
-          <Text style={styles.selectText}>Select</Text>
+          <Text style={styles.selectText}>{t("Select")}</Text>
         </View>
       </View>
     </Pressable>

@@ -4,13 +4,14 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Destination } from "@/api/types";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
-import { formatMoney } from "@/utils/dates";
 
 type Props = { item: Destination; onPress: () => void };
 
 export default function DestinationCard({ item, onPress }: Props) {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
@@ -20,7 +21,7 @@ export default function DestinationCard({ item, onPress }: Props) {
       </View>
       <View style={styles.body}>
         <Text style={styles.city}>{item.city}</Text>
-        <Text style={styles.price}>{item.fromPrice != null ? `From ${formatMoney(item.fromPrice)}` : "No flights"}</Text>
+        <Text style={styles.price}>{item.fromPrice != null ? t("From {price}", { price: formatMoney(item.fromPrice) }) : t("No flights")}</Text>
       </View>
     </Pressable>
   );

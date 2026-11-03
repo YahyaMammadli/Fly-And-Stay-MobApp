@@ -3,15 +3,12 @@ import { createContext, ReactNode, useCallback, useContext, useMemo, useState } 
 import { Airport, Flight, HotelDetails, Room } from "@/api/types";
 import { addDays, todayISO } from "@/utils/dates";
 
-export const GYD: Airport = { code: "GYD", city: "Baku", country: "Azerbaijan", name: "Heydar Aliyev Intl" };
-export const IST: Airport = { code: "IST", city: "Istanbul", country: "Türkiye", name: "Istanbul Airport" };
-
 const DEFAULT_STAY_NIGHTS = 5;
 
 export type Search = {
-
-  from: Airport;
-  to: Airport;
+  // Empty until the user picks an airport (From can be pre-filled from the shared location).
+  from: Airport | null;
+  to: Airport | null;
   departDate: string;
   returnDate: string;
   passengers: number;
@@ -39,12 +36,12 @@ function initialSearch(): Search {
   const depart = addDays(todayISO(), 7);
   const back = addDays(depart, DEFAULT_STAY_NIGHTS);
   return {
-    from: GYD,
-    to: IST,
+    from: null,
+    to: null,
     departDate: depart,
     returnDate: back,
     passengers: 1,
-    destination: IST.city,
+    destination: "",
     checkIn: depart,
     checkOut: back,
     guests: 2,

@@ -1,5 +1,4 @@
 import { HotelSearchParams } from "@/api/travel";
-import { formatMoney } from "@/utils/dates";
 
 export type HotelSort = "popular" | "price_asc" | "price_desc" | "rating" | "distance";
 export const HOTEL_SORTS: { value: HotelSort; label: string }[] = [
@@ -37,12 +36,20 @@ const num = (text: string) => {
   return text.trim() !== "" && Number.isFinite(n) && n >= 0 ? n : undefined;
 };
 
-export function toHotelParams(city: string, guests: number, f: HotelFilters, sort: HotelSort): HotelSearchParams {
+export function toHotelParams(
+  city: string,
+  guests: number,
+  f: HotelFilters,
+  sort: HotelSort,
+  toUsd: (amount: number) => number,
+): HotelSearchParams {
+  const min = num(f.minPrice);
+  const max = num(f.maxPrice);
   return {
     city,
     guests,
-    minPrice: num(f.minPrice),
-    maxPrice: num(f.maxPrice),
+    minPrice: min === undefined ? undefined : Math.floor(toUsd(min)),
+    maxPrice: max === undefined ? undefined : Math.ceil(toUsd(max)),
     minRating: f.minRating ?? undefined,
     stars: f.stars.length ? f.stars.join(",") : undefined,
     amenities: f.amenities.length ? f.amenities.join(",") : undefined,
@@ -59,11 +66,15 @@ export function countHotelFilters(f: HotelFilters): number {
   return (priceActive(f) ? 1 : 0) + (f.minRating !== null ? 1 : 0) + f.stars.length + f.amenities.length + (f.maxDistance !== null ? 1 : 0);
 }
 
-export function priceLabel(f: HotelFilters): string {
+export function priceLabel(
+  f: HotelFilters,
+  formatAmount: (amount: number) => string,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+): string {
   const min = num(f.minPrice);
   const max = num(f.maxPrice);
-  if (min !== undefined && max !== undefined) return `${formatMoney(min)} – ${formatMoney(max)}`;
-  if (min !== undefined) return `From ${formatMoney(min)}`;
-  if (max !== undefined) return `Up to ${formatMoney(max)}`;
-  return "Price";
+  if (min !== undefined && max !== undefined) return `${formatAmount(min)} – ${formatAmount(max)}`;
+  if (min !== undefined) return t("From {price}", { price: formatAmount(min) });
+  if (max !== undefined) return t("Up to {price}", { price: formatAmount(max) });
+  return t("Price");
 }

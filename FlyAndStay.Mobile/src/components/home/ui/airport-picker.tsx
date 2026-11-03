@@ -6,6 +6,7 @@ import Catalog from "@/components/shared/ui/catalog";
 import Sheet from "@/components/shared/ui/sheet";
 import { ThemeColors } from "@/constants/theme";
 import { useAirports } from "@/hooks/use-airports";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 type Props = {
@@ -21,6 +22,7 @@ const SEARCH_KEYS: (keyof Airport)[] = ["city", "code", "country", "name"];
 
 export default function AirportPicker({ visible, title, mode = "airport", onSelect, onClose }: Props) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const airports = useAirports();
 
@@ -31,10 +33,10 @@ export default function AirportPicker({ visible, title, mode = "airport", onSele
           data={airports}
           keyExtractor={(a) => a.code}
           searchKeys={SEARCH_KEYS}
-          searchPlaceholder={mode === "city" ? "Search city" : "Search city or airport"}
+          searchPlaceholder={t(mode === "city" ? "Search city" : "Search city or airport")}
           gap={0}
-          emptyTitle="No places found"
-          emptyText="Try another name or code."
+          emptyTitle={t("No places found")}
+          emptyText={t("Try another name or code.")}
           renderItem={({ item }) => (
             <Pressable
               style={styles.row}

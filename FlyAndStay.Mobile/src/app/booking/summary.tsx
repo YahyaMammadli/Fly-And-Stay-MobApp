@@ -9,9 +9,11 @@ import { getErrorMessage } from "@/api/client";
 import Button from "@/components/shared/ui/button";
 import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
+import { usePush } from "@/hooks/use-push";
 import { useTheme } from "@/hooks/use-theme";
 import { useTrip } from "@/hooks/use-trip";
-import { diffDays, formatLong, formatMoney, formatRange, formatTime, plural } from "@/utils/dates";
+import { diffDays, formatLong, formatRange, formatTime, plural } from "@/utils/dates";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -70,9 +72,11 @@ function AddCard({ icon, title, text, onPress }: { icon: IconName; title: string
 
 export default function BookingSummaryScreen() {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { search, draft, setFlight, setStay, resetDraft } = useTrip();
+  const { syncReminders } = usePush();
   const { flight, hotel, room } = draft;
 
   const [submitting, setSubmitting] = useState(false);
@@ -98,12 +102,13 @@ export default function BookingSummaryScreen() {
         guests: search.guests,
       });
       resetDraft();
+      void syncReminders();
       router.replace({
         pathname: "/booking/confirmed",
         params: { reference: booking.reference, total: String(booking.total) },
       });
     } catch (e) {
-      setError(getErrorMessage(e, "Could not complete the booking. Please try again."));
+      setError(getErrorMessage(e, t("Could not complete the booking. Please try again.")));
     } finally {
       setSubmitting(false);
     }
@@ -111,13 +116,13 @@ export default function BookingSummaryScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <ScreenHeader title="Booking Summary" fallbackHref="/flights" />
+      <ScreenHeader title={t("Booking Summary")} fallbackHref="/flights" />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {flight ? (
           <SummaryCard
             icon="paper-plane"
-            title="Flight"
+            title={t("Flight")}
             lines={[
               `${flight.from.city} (${flight.from.code}) → ${flight.to.city} (${flight.to.code})`,
               `${formatLong(flight.departAt)} · ${formatTime(flight.departAt)} – ${formatTime(flight.arriveAt)}`,
@@ -133,8 +138,8 @@ export default function BookingSummaryScreen() {
         ) : (
           <AddCard
             icon="paper-plane-outline"
-            title="Add a flight"
-            text={`${search.from.city} → ${search.to.city}`}
+            title={t("Add a flight")}
+            text={search.from && search.to ? `${search.from.city} → ${search.to.city}` : t("Choose where you fly from and to.")}
             onPress={() => router.navigate("/flights")}
           />
         )}
@@ -142,7 +147,7 @@ export default function BookingSummaryScreen() {
         {hotel && room ? (
           <SummaryCard
             icon="bed"
-            title="Hotel"
+            title={t("Hotel")}
             lines={[
               hotel.name,
               `${formatRange(search.checkIn, search.checkOut)} · ${plural(nights, "night")}`,
@@ -157,7 +162,7 @@ export default function BookingSummaryScreen() {
         ) : (
           <AddCard
             icon="bed-outline"
-            title="Add a hotel"
+            title={t("Add a hotel")}
             text={`Stay in ${flight?.to.city ?? search.destination}`}
             onPress={() => router.navigate("/hotels")}
           />
@@ -166,8 +171,8 @@ export default function BookingSummaryScreen() {
         {hasItems && (
           <View style={styles.totalRow}>
             <View>
-              <Text style={styles.totalLabel}>Total Price</Text>
-              <Text style={styles.line}>Includes taxes &amp; fees</Text>
+              <Text style={styles.totalLabel}>{t("Total Price")}</Text>
+              <Text style={styles.line}>{t("Includes taxes & fees")}</Text>
             </View>
             <Text style={styles.total}>{formatMoney(total)}</Text>
           </View>
@@ -177,7 +182,7 @@ export default function BookingSummaryScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button title="Confirm Booking" onPress={confirm} loading={submitting} disabled={!hasItems} />
+        <Button title={t("Confirm Booking")} onPress={confirm} loading={submitting} disabled={!hasItems} />
       </View>
     </SafeAreaView>
   );

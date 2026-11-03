@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AirlineBrand } from "@/api/types";
 import Catalog from "@/components/shared/ui/catalog";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
 
 export default function Brands({ brands, loading, error, onRetry, selectedSlug, onSelect }: Props) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
@@ -29,7 +31,7 @@ export default function Brands({ brands, loading, error, onRetry, selectedSlug, 
       onRetry={onRetry}
       keyExtractor={(b) => b.slug}
       contentContainerStyle={styles.list}
-      emptyTitle="No airlines"
+      emptyTitle={t("No airlines")}
       renderItem={({ item }) => {
         const active = item.slug === selectedSlug;
         return (

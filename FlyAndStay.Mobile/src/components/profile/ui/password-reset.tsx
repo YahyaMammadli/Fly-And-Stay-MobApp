@@ -7,9 +7,11 @@ import { authApi } from "@/api/auth";
 import { getErrorMessage } from "@/api/client";
 import AuthField from "@/components/auth/ui/auth-field";
 import OtpInput from "@/components/auth/ui/otp-input";
+import PasswordRules from "@/components/auth/ui/password-rules";
 import { resetPasswordSchema, ResetPasswordSchema } from "@/components/auth/ui/auth.schema";
 import Button from "@/components/shared/ui/button";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 const RESEND_SECONDS = 60;
@@ -22,6 +24,7 @@ type Props = {
 
 export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [step, setStep] = useState<"start" | "code">("start");
@@ -82,12 +85,12 @@ export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
       if (Platform.OS === "web") {
         finish();
       } else {
-        Alert.alert("Password updated", "Use your new password the next time you log in.", [
+        Alert.alert(t("Password updated"), t("Use your new password the next time you log in."), [
           { text: "OK", onPress: finish },
         ]);
       }
     } catch (error) {
-      setFormError(getErrorMessage(error, "Could not update the password. Please try again."));
+      setFormError(getErrorMessage(error, t("Could not update the password. Please try again.")));
     }
   };
 
@@ -100,22 +103,22 @@ export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
           </Text>
         ) : (
           <>
-            <Text style={styles.hint}>Enter the e-mail of your account and we will send you a 6-digit code.</Text>
-            <AuthField
-              icon="mail-outline"
-              placeholder="Email Address"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              value={emailInput}
-              onChangeText={setEmailInput}
-              error={emailError}
-            />
+              <Text style={styles.hint}>{t("Enter the e-mail of your account and we will send you a 6-digit code.")}</Text>
+              <AuthField
+                icon="mail-outline"
+                placeholder={t("Email Address")}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                value={emailInput}
+                onChangeText={setEmailInput}
+                error={emailError}
+              />
           </>
         )}
         {!!formError && <Text style={styles.formError}>{formError}</Text>}
         <Button
-          title="Send code"
+          title={t("Send code")}
           icon="mail-outline"
           variant={fixedEmail ? "outline" : "primary"}
           onPress={sendCode}
@@ -128,7 +131,7 @@ export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
   return (
     <View>
       <Text style={styles.hint}>
-        Code sent to <Text style={styles.bold}>{email}</Text>. It is valid for 10 minutes.
+        {t("Code sent to")} <Text style={styles.bold}>{email}</Text>. {t("It is valid for 10 minutes.")}
       </Text>
 
       <Controller
@@ -143,17 +146,20 @@ export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
         control={control}
         name="newPassword"
         render={({ field: { onChange, onBlur, value } }) => (
-          <AuthField
-            icon="lock-closed-outline"
-            placeholder="New password"
-            password
-            autoCapitalize="none"
-            autoComplete="new-password"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            error={errors.newPassword?.message}
-          />
+          <>
+            <AuthField
+              icon="lock-closed-outline"
+              placeholder={t("New password")}
+              password
+              autoCapitalize="none"
+              autoComplete="new-password"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              error={errors.newPassword?.message}
+            />
+            <PasswordRules value={value} />
+          </>
         )}
       />
 
@@ -163,7 +169,7 @@ export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthField
             icon="lock-closed-outline"
-            placeholder="Confirm new password"
+            placeholder={t("Confirm new password")}
             password
             autoCapitalize="none"
             autoComplete="new-password"
@@ -177,14 +183,14 @@ export default function PasswordReset({ email: fixedEmail, onDone }: Props) {
 
       {!!formError && <Text style={styles.formError}>{formError}</Text>}
 
-      <Button title="Update password" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+      <Button title={t("Update password")} onPress={() => void handleSubmit(onSubmit)()} loading={isSubmitting} />
 
       <Text style={styles.resend}>
         {cooldown > 0 ? (
-          `Didn't get it? Resend in ${cooldown}s`
+          t("Didn't get it? Resend in {seconds}s", { seconds: cooldown })
         ) : (
           <Text style={styles.link} onPress={sendCode}>
-            Resend code
+            {t("Resend code")}
           </Text>
         )}
       </Text>

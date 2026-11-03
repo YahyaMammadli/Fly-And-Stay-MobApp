@@ -11,6 +11,9 @@ export type PushRegistration =
 
 export const isPushSupported = Platform.OS === "android" || Platform.OS === "ios";
 
+/** Android channel created in ensureAndroidChannel; also used by locally scheduled notifications. */
+export const ANDROID_CHANNEL_ID = "default";
+
 if (isPushSupported) {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -24,7 +27,7 @@ if (isPushSupported) {
 
 async function ensureAndroidChannel() {
   if (Platform.OS !== "android") return;
-  await Notifications.setNotificationChannelAsync("default", {
+  await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
     name: "Fly&Stay",
     importance: Notifications.AndroidImportance.MAX,
     vibrationPattern: [0, 250, 250, 250],

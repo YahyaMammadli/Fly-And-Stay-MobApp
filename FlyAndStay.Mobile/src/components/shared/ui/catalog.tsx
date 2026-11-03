@@ -14,6 +14,7 @@ import {
 
 import { ThemeColors } from "@/constants/theme";
 import SkeletonList from "@/components/shared/ui/skeleton";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 type CatalogProps<T> = {
@@ -66,6 +67,7 @@ export default function Catalog<T>({
   header = null,
 }: CatalogProps<T>) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [query, setQuery] = useState(initialQuery);
   const searchable = !!searchKeys?.length;
@@ -103,11 +105,11 @@ export default function Catalog<T>({
     placeholder = (
       <View style={styles.empty}>
         <Ionicons name="cloud-offline-outline" size={36} color={colors.muted} />
-        <Text style={styles.emptyTitle}>Couldn&apos;t load</Text>
+        <Text style={styles.emptyTitle}>{t("Couldn't load")}</Text>
         <Text style={styles.emptyText}>{error}</Text>
         {onRetry && (
           <Pressable style={styles.actionButton} onPress={onRetry}>
-            <Text style={styles.actionText}>Try again</Text>
+            <Text style={styles.actionText}>{t("Try again")}</Text>
           </Pressable>
         )}
       </View>
@@ -144,7 +146,7 @@ export default function Catalog<T>({
             {header}
             {searchBar}
           </View>
-        ) : null
+        ) : undefined
       }
       ListEmptyComponent={placeholder}
       refreshing={onRefresh ? (refreshing ?? false) : undefined}

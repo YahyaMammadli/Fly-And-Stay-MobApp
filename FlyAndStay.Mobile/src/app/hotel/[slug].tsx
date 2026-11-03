@@ -12,9 +12,10 @@ import Button from "@/components/shared/ui/button";
 import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import { useTrip } from "@/hooks/use-trip";
-import { diffDays, formatMoney, formatRange, plural } from "@/utils/dates";
+import { diffDays, formatRange, plural } from "@/utils/dates";
 
 const TABS = [
   { type: "Standard", label: "Standard Room" },
@@ -24,6 +25,7 @@ const TABS = [
 
 export default function HotelDetailsScreen() {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -53,7 +55,7 @@ export default function HotelDetailsScreen() {
         <View style={styles.center}>
           <Ionicons name="cloud-offline-outline" size={36} color={colors.muted} />
           <Text style={styles.muted}>{error ?? "Hotel not found."}</Text>
-          <Button title="Try again" variant="outline" onPress={reload} style={{ marginTop: 12 }} />
+          <Button title={t("Try again")} variant="outline" onPress={reload} style={{ marginTop: 12 }} />
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -83,7 +85,7 @@ export default function HotelDetailsScreen() {
 
           <Text style={styles.description}>{hotel.description}</Text>
 
-          <Text style={styles.section}>Room options</Text>
+          <Text style={styles.section}>{t("Room options")}</Text>
           <Text style={styles.stay}>
             {formatRange(search.checkIn, search.checkOut)} · {plural(nights, "night")} · {plural(search.guests, "guest")}
           </Text>
@@ -115,7 +117,7 @@ export default function HotelDetailsScreen() {
                     <View>
                       <Text style={styles.price}>
                         {formatMoney(room.pricePerNight)}
-                        <Text style={styles.night}> /night</Text>
+                        <Text style={styles.night}>{t(" /night")}</Text>
                       </Text>
                       <Text style={styles.night}>{formatMoney(room.pricePerNight * nights)} total</Text>
                     </View>

@@ -7,13 +7,16 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 import { getErrorMessage } from "@/api/client";
 import { ThemeColors } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import AuthField from "./auth-field";
 import AuthLayout from "./auth-layout";
+import PasswordRules from "./password-rules";
 import { signUpSchema, SignUpSchema } from "./auth.schema";
 
 export default function SignUpForm() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { signUp } = useAuth();
   const [formError, setFormError] = useState("");
@@ -35,19 +38,19 @@ export default function SignUpForm() {
       reset();
       router.replace("/home");
     } catch (error) {
-      setFormError(getErrorMessage(error, "Could not create your account. Please try again."));
+      setFormError(getErrorMessage(error, t("Could not create your account. Please try again.")));
     }
   };
 
   return (
     <AuthLayout
-      title="Create account"
-      subtitle="Sign up to start planning your trip"
+      title={t("Create account")}
+      subtitle={t("Sign up to start planning your trip")}
       footer={
         <Text style={styles.footerText}>
-          Already have an account?{" "}
+          {t("Already have an account?")}{" "}
           <Text style={styles.link} onPress={() => router.replace("/auth/sign-in")}>
-            Log in
+            {t("Log in")}
           </Text>
         </Text>
       }
@@ -58,7 +61,7 @@ export default function SignUpForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthField
             icon="person-outline"
-            placeholder="Name"
+            placeholder={t("Name")}
             autoCapitalize="words"
             autoComplete="name"
             onBlur={onBlur}
@@ -75,7 +78,7 @@ export default function SignUpForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthField
             icon="mail-outline"
-            placeholder="Email Address"
+            placeholder={t("Email Address")}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -91,17 +94,20 @@ export default function SignUpForm() {
         control={control}
         name="password"
         render={({ field: { onChange, onBlur, value } }) => (
-          <AuthField
-            icon="lock-closed-outline"
-            placeholder="Password"
-            password
-            autoCapitalize="none"
-            autoComplete="new-password"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            error={errors.password?.message}
-          />
+          <>
+            <AuthField
+              icon="lock-closed-outline"
+              placeholder={t("Password")}
+              password
+              autoCapitalize="none"
+              autoComplete="new-password"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              error={errors.password?.message}
+            />
+            <PasswordRules value={value} />
+          </>
         )}
       />
 
@@ -111,7 +117,7 @@ export default function SignUpForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthField
             icon="lock-closed-outline"
-            placeholder="Confirm Password"
+            placeholder={t("Confirm Password")}
             password
             autoCapitalize="none"
             autoComplete="new-password"
@@ -127,13 +133,13 @@ export default function SignUpForm() {
 
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => void handleSubmit(onSubmit)()}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={styles.buttonText}>{t("Sign Up")}</Text>
         )}
       </Pressable>
     </AuthLayout>

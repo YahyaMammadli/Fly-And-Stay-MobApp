@@ -1,39 +1,61 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Airport } from "@/api/types";
 import CalendarModal from "@/components/shared/ui/calendar-modal";
 import Stepper from "@/components/shared/ui/stepper";
 import { ThemeColors } from "@/constants/theme";
+import { useAirports } from "@/hooks/use-airports";
+import { useLocation } from "@/hooks/use-location";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import { Search, useTrip } from "@/hooks/use-trip";
-import { addDays, formatLong, plural, todayISO } from "@/utils/dates";
+import { addDays, formatLong, todayISO } from "@/utils/dates";
+import { airportForLocation } from "@/utils/geo";
 import AirportPicker from "./airport-picker";
+
+// Airport code that the shared location put into "From". While "From" still holds it, a newer location may
+// replace it; once the user picks or swaps airports themselves, their choice is never overwritten.
+let originFromLocation: string | null = null;
 
 type Mode = "flights" | "hotels";
 type Picker = "from" | "to" | "city" | null;
 type DateField = "departDate" | "returnDate" | "checkIn" | "checkOut" | null;
 
-function Cell({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+function Cell({ label, value, placeholder, onPress }: { label: string; value: string; placeholder?: string; onPress: () => void }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Pressable style={styles.cell} onPress={onPress}>
       <Text style={styles.cellLabel}>{label}</Text>
-      <Text style={styles.cellValue} numberOfLines={1}>
-        {value}
+      <Text style={[styles.cellValue, !value && styles.cellPlaceholder]} numberOfLines={1}>
+        {value || placeholder}
       </Text>
     </Pressable>
   );
 }
+
+const airportLabel = (airport: Airport | null) => (airport ? `${airport.city} (${airport.code})` : "");
 
 export default function SearchCard() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { search, updateSearch } = useTrip();
+  const { t } = usePreferences();
+  const { location } = useLocation();
+  const airports = useAirports();
+
+  useEffect(() => {
+    const origin = airportForLocation(airports, location);
+    if (!origin || origin.code === search.from?.code || origin.code === search.to?.code) return;
+    const fromIsAutomatic = !search.from || search.from.code === originFromLocation;
+    if (!fromIsAutomatic) return;
+    originFromLocation = origin.code;
+    updateSearch({ from: origin });
+  }, [airports, location, search.from, search.to, updateSearch]);
 
   const [mode, setMode] = useState<Mode>("flights");
   const [picker, setPicker] = useState<Picker>(null);
@@ -45,31 +67,43 @@ export default function SearchCard() {
   const dateConfig = useMemo(() => {
     switch (dateField) {
       case "departDate":
-        return { title: "Departure date", value: search.departDate, min: today };
+        return { title: t("Departure date"), value: search.departDate, min: today };
       case "returnDate":
-        return { title: "Return date", value: search.returnDate, min: addDays(search.departDate, 1) };
+        return { title: t("Return date"), value: search.returnDate, min: addDays(search.departDate, 1) };
       case "checkIn":
-        return { title: "Check-in date", value: search.checkIn, min: today };
+        return { title: t("Check-in date"), value: search.checkIn, min: today };
       case "checkOut":
-        return { title: "Check-out date", value: search.checkOut, min: addDays(search.checkIn, 1) };
+        return { title: t("Check-out date"), value: search.checkOut, min: addDays(search.checkIn, 1) };
       default:
         return null;
     }
-  }, [dateField, search, today]);
+  }, [dateField, search, today, t]);
 
-  const swap = () => updateSearch({ from: search.to, to: search.from });
+  const swap = () => {
+    originFromLocation = null;
+    updateSearch({ from: search.to, to: search.from });
+  };
 
   const pickAirport = (airport: Airport) => {
     setError("");
-    if (picker === "from") updateSearch({ from: airport });
-    else if (picker === "to") updateSearch({ to: airport });
-    else if (picker === "city") updateSearch({ destination: airport.city });
+    if (picker === "from") {
+      originFromLocation = null;
+      updateSearch({ from: airport });
+    } else if (picker === "to") {
+      updateSearch({ to: airport });
+    } else if (picker === "city") {
+      updateSearch({ destination: airport.city });
+    }
   };
 
   const submit = () => {
     if (mode === "flights") {
+      if (!search.from || !search.to) {
+        setError(t("Choose where you fly from and to."));
+        return;
+      }
       if (search.from.code === search.to.code) {
-        setError("Departure and arrival airports must be different.");
+        setError(t("Departure and arrival airports must be different."));
         return;
       }
       setError("");
@@ -88,7 +122,7 @@ export default function SearchCard() {
             <Pressable key={m} style={[styles.segmentItem, active && styles.segmentActive]} onPress={() => setMode(m)}>
               <Ionicons name={m === "flights" ? "paper-plane" : "bed"} size={18} color={active ? colors.primary : colors.muted} />
               <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
-                {m === "flights" ? "Flights" : "Hotels"}
+                {t(m === "flights" ? "Flights" : "Hotels")}
               </Text>
             </Pressable>
           );
@@ -99,21 +133,23 @@ export default function SearchCard() {
         {mode === "flights" ? (
           <>
             <View style={styles.row}>
-              <Cell label="From" value={`${search.from.city} (${search.from.code})`} onPress={() => setPicker("from")} />
+              <Cell label={t("From")} value={airportLabel(search.from)} placeholder={t("Select")} onPress={() => setPicker("from")} />
               <Pressable style={styles.swap} onPress={swap}>
                 <Ionicons name="swap-horizontal" size={18} color={colors.primary} />
               </Pressable>
-              <Cell label="To" value={`${search.to.city} (${search.to.code})`} onPress={() => setPicker("to")} />
+              <Cell label={t("To")} value={airportLabel(search.to)} placeholder={t("Select")} onPress={() => setPicker("to")} />
             </View>
             <View style={[styles.row, styles.rowTop]}>
-              <Cell label="Departure" value={formatLong(search.departDate)} onPress={() => setDateField("departDate")} />
-              <Cell label="Return" value={formatLong(search.returnDate)} onPress={() => setDateField("returnDate")} />
+              <Cell label={t("Departure")} value={formatLong(search.departDate)} onPress={() => setDateField("departDate")} />
+              <Cell label={t("Return")} value={formatLong(search.returnDate)} onPress={() => setDateField("returnDate")} />
             </View>
             <View style={[styles.row, styles.rowTop, styles.passenger]}>
               <Ionicons name="person-outline" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.passengerMain}>{plural(search.passengers, "Passenger")}</Text>
-                <Text style={styles.cellLabel}>Economy</Text>
+                <Text style={styles.passengerMain}>
+                  {t(search.passengers === 1 ? "{count} Passenger" : "{count} Passengers", { count: search.passengers })}
+                </Text>
+                <Text style={styles.cellLabel}>{t("Economy")}</Text>
               </View>
               <Stepper value={search.passengers} min={1} max={9} onChange={(passengers) => updateSearch({ passengers })} />
             </View>
@@ -121,17 +157,19 @@ export default function SearchCard() {
         ) : (
           <>
             <View style={styles.row}>
-              <Cell label="Destination" value={search.destination} onPress={() => setPicker("city")} />
+              <Cell label={t("Destination")} value={search.destination} placeholder={t("Select")} onPress={() => setPicker("city")} />
             </View>
             <View style={[styles.row, styles.rowTop]}>
-              <Cell label="Check-in" value={formatLong(search.checkIn)} onPress={() => setDateField("checkIn")} />
-              <Cell label="Check-out" value={formatLong(search.checkOut)} onPress={() => setDateField("checkOut")} />
+              <Cell label={t("Check-in")} value={formatLong(search.checkIn)} onPress={() => setDateField("checkIn")} />
+              <Cell label={t("Check-out")} value={formatLong(search.checkOut)} onPress={() => setDateField("checkOut")} />
             </View>
             <View style={[styles.row, styles.rowTop, styles.passenger]}>
               <Ionicons name="people-outline" size={18} color={colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.passengerMain}>{plural(search.guests, "Guest")}</Text>
-                <Text style={styles.cellLabel}>1 Room</Text>
+                <Text style={styles.passengerMain}>
+                  {t(search.guests === 1 ? "{count} Guest" : "{count} Guests", { count: search.guests })}
+                </Text>
+                <Text style={styles.cellLabel}>{t("1 Room")}</Text>
               </View>
               <Stepper value={search.guests} min={1} max={4} onChange={(guests) => updateSearch({ guests })} />
             </View>
@@ -142,12 +180,12 @@ export default function SearchCard() {
       {!!error && <Text style={styles.error}>{error}</Text>}
 
       <Pressable style={({ pressed }) => [styles.button, pressed && { opacity: 0.85 }]} onPress={submit}>
-        <Text style={styles.buttonText}>{mode === "flights" ? "Search Flights" : "Search Hotels"}</Text>
+        <Text style={styles.buttonText}>{t(mode === "flights" ? "Search Flights" : "Search Hotels")}</Text>
       </Pressable>
 
       <AirportPicker
         visible={picker !== null}
-        title={picker === "from" ? "From" : picker === "to" ? "To" : "Destination"}
+        title={t(picker === "from" ? "From" : picker === "to" ? "To" : "Destination")}
         mode={picker === "city" ? "city" : "airport"}
         onSelect={pickAirport}
         onClose={() => setPicker(null)}
@@ -194,6 +232,7 @@ const createStyles = (colors: ThemeColors) =>
     cell: { flex: 1, paddingHorizontal: 14, paddingVertical: 10 },
     cellLabel: { fontSize: 11, color: colors.muted },
     cellValue: { fontSize: 15, fontWeight: "700", color: colors.text, marginTop: 2 },
+    cellPlaceholder: { color: colors.muted, fontWeight: "600" },
     swap: {
       position: "absolute",
       left: "50%",

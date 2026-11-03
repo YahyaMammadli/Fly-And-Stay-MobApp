@@ -22,6 +22,7 @@ export const lightColors = {
 
 export type ThemeColors = { [K in keyof typeof lightColors]: string };
 export type ThemeMode = "light" | "dark";
+export type ThemePreference = "auto" | ThemeMode;
 
 export const darkColors: ThemeColors = {
   primary: "#4C8DFF",

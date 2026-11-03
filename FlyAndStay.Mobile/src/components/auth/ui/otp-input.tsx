@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, TextInputInstance, View } from "react-native";
 
 import { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,7 +14,7 @@ type Props = {
 export default function OtpInput({ value, onChange, length = 6, error }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInputInstance>(null);
   const [focused, setFocused] = useState(false);
   const activeIndex = Math.min(value.length, length - 1);
 

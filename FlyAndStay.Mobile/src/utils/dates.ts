@@ -65,13 +65,6 @@ export function formatDuration(minutes: number): string {
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
-export function formatMoney(value: number): string {
-  const rounded = Number.isInteger(value) ? String(value) : value.toFixed(2);
-  const [whole, fraction] = rounded.split(".");
-  const withCommas = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `$${withCommas}${fraction ? `.${fraction}` : ""}`;
-}
-
 export function plural(n: number, one: string, many: string = `${one}s`): string {
   return `${n} ${n === 1 ? one : many}`;
 }

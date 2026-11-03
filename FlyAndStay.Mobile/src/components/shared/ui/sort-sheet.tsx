@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text } from "react-native";
 
 import Sheet from "@/components/shared/ui/sheet";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 type Option<T extends string> = { value: T; label: string };
@@ -18,10 +19,11 @@ type Props<T extends string> = {
 
 export default function SortSheet<T extends string>({ visible, options, value, onSelect, onClose }: Props<T>) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <Sheet visible={visible} title="Sort by" onClose={onClose}>
+    <Sheet visible={visible} title={t("Sort by")} onClose={onClose}>
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -33,7 +35,7 @@ export default function SortSheet<T extends string>({ visible, options, value, o
               onClose();
             }}
           >
-            <Text style={[styles.label, active && styles.labelActive]}>{option.label}</Text>
+            <Text style={[styles.label, active && styles.labelActive]}>{t(option.label)}</Text>
             {active && <Ionicons name="checkmark" size={20} color={colors.primary} />}
           </Pressable>
         );

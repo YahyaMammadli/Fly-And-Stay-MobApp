@@ -6,6 +6,7 @@ import Button from "@/components/shared/ui/button";
 import Chip from "@/components/shared/ui/chip";
 import Sheet from "@/components/shared/ui/sheet";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import { DISTANCE_OPTIONS, emptyHotelFilters, HotelFilters, RATING_OPTIONS, STAR_OPTIONS } from "../filters";
 
@@ -27,6 +28,7 @@ function toggle<T>(list: T[], item: T): T[] {
 
 export default function HotelFiltersSheet({ section, amenities, value, onApply, onClose }: Props) {
   const { colors } = useTheme();
+  const { t, currency } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [draft, setDraft] = useState<HotelFilters>(value);
   const set = (patch: Partial<HotelFilters>) => setDraft((d) => ({ ...d, ...patch }));
@@ -40,13 +42,13 @@ export default function HotelFiltersSheet({ section, amenities, value, onApply, 
   return (
     <Sheet
       visible
-      title={TITLES[section]}
+      title={t(TITLES[section])}
       onClose={onClose}
       footer={
         <>
-          <Button title="Reset" variant="outline" style={{ flex: 1 }} onPress={resetSection} />
+          <Button title={t("Reset")} variant="outline" style={{ flex: 1 }} onPress={resetSection} />
           <Button
-            title="Apply"
+            title={t("Apply")}
             style={{ flex: 2 }}
             onPress={() => {
               onApply(draft);
@@ -58,24 +60,24 @@ export default function HotelFiltersSheet({ section, amenities, value, onApply, 
     >
       {section === "price" && (
         <View>
-          <Text style={styles.label}>Cheapest room, USD per night</Text>
+          <Text style={styles.label}>{t("Cheapest room, {currency} per night", { currency: currency.code })}</Text>
           <View style={styles.priceRow}>
             <TextInput
               style={styles.input}
-              placeholder="Min"
+              placeholder={t("Min")}
               placeholderTextColor={colors.muted}
               keyboardType="numeric"
               value={draft.minPrice}
-              onChangeText={(t) => set({ minPrice: t.replace(/[^0-9.]/g, "") })}
+              onChangeText={(text) => set({ minPrice: text.replace(/[^0-9.]/g, "") })}
             />
             <Text style={styles.dash}>–</Text>
             <TextInput
               style={styles.input}
-              placeholder="Max"
+              placeholder={t("Max")}
               placeholderTextColor={colors.muted}
               keyboardType="numeric"
               value={draft.maxPrice}
-              onChangeText={(t) => set({ maxPrice: t.replace(/[^0-9.]/g, "") })}
+              onChangeText={(text) => set({ maxPrice: text.replace(/[^0-9.]/g, "") })}
             />
           </View>
         </View>
@@ -84,7 +86,7 @@ export default function HotelFiltersSheet({ section, amenities, value, onApply, 
       {section === "rating" && (
         <>
           <View>
-            <Text style={styles.label}>Guest rating</Text>
+            <Text style={styles.label}>{t("Guest rating")}</Text>
             <View style={styles.wrap}>
               {RATING_OPTIONS.map((r) => (
                 <Chip
@@ -98,12 +100,12 @@ export default function HotelFiltersSheet({ section, amenities, value, onApply, 
             </View>
           </View>
           <View>
-            <Text style={styles.label}>Hotel class</Text>
+            <Text style={styles.label}>{t("Hotel class")}</Text>
             <View style={styles.wrap}>
               {STAR_OPTIONS.map((s) => (
                 <Chip
                   key={s}
-                  label={`${s} stars`}
+                  label={t("{count} stars", { count: s })}
                   active={draft.stars.includes(s)}
                   onPress={() => set({ stars: toggle(draft.stars, s) })}
                 />
@@ -116,7 +118,7 @@ export default function HotelFiltersSheet({ section, amenities, value, onApply, 
       {section === "more" && (
         <>
           <View>
-            <Text style={styles.label}>Amenities</Text>
+            <Text style={styles.label}>{t("Amenities")}</Text>
             <View style={styles.wrap}>
               {amenities.map((a) => (
                 <Chip
@@ -129,12 +131,12 @@ export default function HotelFiltersSheet({ section, amenities, value, onApply, 
             </View>
           </View>
           <View>
-            <Text style={styles.label}>Distance to center</Text>
+            <Text style={styles.label}>{t("Distance to center")}</Text>
             <View style={styles.wrap}>
               {DISTANCE_OPTIONS.map((d) => (
                 <Chip
                   key={d}
-                  label={`Up to ${d} km`}
+                  label={t("Up to {distance} km", { distance: d })}
                   active={draft.maxDistance === d}
                   onPress={() => set({ maxDistance: draft.maxDistance === d ? null : d })}
                 />

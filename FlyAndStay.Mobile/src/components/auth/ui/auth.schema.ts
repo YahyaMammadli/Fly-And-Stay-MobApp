@@ -1,5 +1,26 @@
 import { z } from "zod";
 
+export const PASSWORD_MIN_LENGTH = 8;
+
+const hasLetter = (s: string) => [...s].some((c) => c.toLowerCase() !== c.toUpperCase());
+const hasDigit = (s: string) => /\d/.test(s);
+const hasUppercase = (s: string) => [...s].some((c) => c !== c.toLowerCase());
+
+export const PASSWORD_RULES = [
+  { label: "At least 8 characters", test: (s: string) => s.length >= PASSWORD_MIN_LENGTH },
+  { label: "Contains a letter", test: hasLetter },
+  { label: "Contains a digit", test: hasDigit },
+  { label: "Contains an uppercase letter", test: hasUppercase },
+];
+
+const strongPassword = z
+  .string()
+  .min(PASSWORD_MIN_LENGTH, "Password must be at least 8 characters long")
+  .max(128, "Password is too long")
+  .refine(hasLetter, "Password must contain at least one letter")
+  .refine(hasDigit, "Password must contain at least one digit")
+  .refine(hasUppercase, "Password must contain at least one uppercase letter");
+
 export const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters long"),
@@ -8,7 +29,8 @@ export const signInSchema = z.object({
 export const signUpSchema = signInSchema
   .extend({
     name: z.string().trim().min(1, "Name is required").max(60, "Name is too long"),
-    confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
+    password: strongPassword,
+    confirmPassword: z.string().min(1, "Confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -18,7 +40,7 @@ export const signUpSchema = signInSchema
 export const resetPasswordSchema = z
   .object({
     code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code from the e-mail"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters long").max(128),
+    newPassword: strongPassword,
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

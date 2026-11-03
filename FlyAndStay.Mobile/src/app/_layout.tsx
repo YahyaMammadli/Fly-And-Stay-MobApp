@@ -3,6 +3,8 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { LocationProvider } from "@/hooks/use-location";
+import { PreferencesProvider } from "@/hooks/use-preferences";
 import { PushProvider } from "@/hooks/use-push";
 import { ThemeProvider, useTheme } from "@/hooks/use-theme";
 import { TripProvider } from "@/hooks/use-trip";
@@ -55,13 +57,17 @@ function RootStack() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <TripProvider>
-          <PushProvider>
-            <RootStack />
-          </PushProvider>
-        </TripProvider>
-      </AuthProvider>
+      <LocationProvider>
+        <PreferencesProvider>
+          <AuthProvider>
+            <TripProvider>
+              <PushProvider>
+                <RootStack />
+              </PushProvider>
+            </TripProvider>
+          </AuthProvider>
+        </PreferencesProvider>
+      </LocationProvider>
     </ThemeProvider>
   );
 }

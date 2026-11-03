@@ -17,10 +17,12 @@ import Button from "@/components/shared/ui/button";
 import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function EditProfileScreen() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { user, setUser, signOut } = useAuth();
@@ -92,7 +94,7 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <ScreenHeader title="Edit profile" fallbackHref="/profile" />
+      <ScreenHeader title={t("Edit profile")} fallbackHref="/profile" />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={styles.photoBlock}>
@@ -103,20 +105,20 @@ export default function EditProfileScreen() {
               </View>
             </Pressable>
             <View style={styles.photoActions}>
-              <Button title="Change photo" variant="outline" style={styles.small} loading={photoBusy} onPress={pickPhoto} />
-              {user.hasPhoto && <Button title="Remove" variant="danger" style={styles.small} disabled={photoBusy} onPress={removePhoto} />}
+              <Button title={t("Change photo")} variant="outline" style={styles.small} loading={photoBusy} onPress={pickPhoto} />
+              {user.hasPhoto && <Button title={t("Remove")} variant="danger" style={styles.small} disabled={photoBusy} onPress={removePhoto} />}
             </View>
             {!!photoError && <Text style={styles.error}>{photoError}</Text>}
           </View>
 
-          <Text style={styles.section}>Personal info</Text>
+          <Text style={styles.section}>{t("Personal info")}</Text>
           <Controller
             control={control}
             name="name"
             render={({ field: { onChange, onBlur, value } }) => (
               <AuthField
                 icon="person-outline"
-                placeholder="Name"
+                placeholder={t("Name")}
                 autoCapitalize="words"
                 onBlur={onBlur}
                 onChangeText={(t) => {
@@ -130,10 +132,10 @@ export default function EditProfileScreen() {
           />
           <AuthField icon="mail-outline" value={user.email} editable={false} style={{ color: colors.muted }} />
           {!!nameError && <Text style={styles.error}>{nameError}</Text>}
-          {saved && <Text style={styles.success}>Saved</Text>}
-          <Button title="Save changes" onPress={handleSubmit(saveName)} loading={isSubmitting} />
+          {saved && <Text style={styles.success}>{t("Saved")}</Text>}
+          <Button title={t("Save changes")} onPress={handleSubmit(saveName)} loading={isSubmitting} />
 
-          <Text style={[styles.section, { marginTop: 32 }]}>Password</Text>
+          <Text style={[styles.section, { marginTop: 32 }]}>{t("Password")}</Text>
           <PasswordReset email={user.email} onDone={afterPasswordReset} />
         </ScrollView>
       </KeyboardAvoidingView>

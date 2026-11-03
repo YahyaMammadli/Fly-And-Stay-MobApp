@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
 
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 type Props = TextInputProps & {
@@ -13,6 +14,7 @@ type Props = TextInputProps & {
 
 export default function AuthField({ icon, error, password, style, ...inputProps }: Props) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [hidden, setHidden] = useState(true);
 
@@ -32,7 +34,7 @@ export default function AuthField({ icon, error, password, style, ...inputProps 
           </Pressable>
         )}
       </View>
-      {!!error && <Text style={styles.errorText}>{error}</Text>}
+      {!!error && <Text style={styles.errorText}>{t(error)}</Text>}
     </View>
   );
 }

@@ -1,6 +1,12 @@
 export const ACCESS_TOKEN_KEY = "access_token";
 export const REFRESH_TOKEN_KEY = "refresh_token";
-export const THEME_STORAGE_KEY = "theme";
+export const THEME_STORAGE_KEY = "theme_preference";
 export const PUSH_TOKEN_KEY = "push_token";
 export const PUSH_ENABLED_KEY = "push_enabled";
 export const PUSH_PROMPTED_KEY = "push_prompted";
+export const LANGUAGE_KEY = "language";
+export const CURRENCY_KEY = "currency";
+export const RATES_KEY = "currency_rates";
+export const LOCATION_KEY = "location";
+export const LOCATION_PROMPTED_KEY = "location_prompted";
+export const PROMO_ENABLED_KEY = "promo_enabled";

@@ -6,11 +6,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/shared/ui/button";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
-import { formatMoney } from "@/utils/dates";
 
 export default function BookingConfirmedScreen() {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { reference, total } = useLocalSearchParams<{ reference?: string; total?: string }>();
@@ -25,13 +26,13 @@ export default function BookingConfirmedScreen() {
         <View style={styles.check}>
           <Ionicons name="checkmark" size={44} color={colors.white} />
         </View>
-        <Text style={styles.title}>Booking Confirmed!</Text>
-        <Text style={styles.sub}>Your trip is all set.</Text>
-        {!!total && <Text style={styles.total}>Total paid: {formatMoney(Number(total))}</Text>}
+        <Text style={styles.title}>{t("Booking Confirmed!")}</Text>
+        <Text style={styles.sub}>{t("Your trip is all set.")}</Text>
+        {!!total && <Text style={styles.total}>{t("Total paid: {price}", { price: formatMoney(Number(total)) })}</Text>}
 
         <View style={styles.refBox}>
           <View>
-            <Text style={styles.refLabel}>Booking Reference</Text>
+            <Text style={styles.refLabel}>{t("Booking Reference")}</Text>
             <Text style={styles.refValue}>#{reference}</Text>
           </View>
           <Pressable onPress={share} hitSlop={10}>
@@ -40,8 +41,8 @@ export default function BookingConfirmedScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button title="View My Trips" onPress={() => router.replace("/trips")} />
-          <Button title="Back to Home" variant="outline" onPress={() => router.replace("/home")} />
+          <Button title={t("View My Trips")} onPress={() => router.replace("/trips")} />
+          <Button title={t("Back to Home")} variant="outline" onPress={() => router.replace("/home")} />
         </View>
       </View>
 

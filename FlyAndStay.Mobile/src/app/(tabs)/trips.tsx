@@ -11,6 +11,8 @@ import Chip from "@/components/shared/ui/chip";
 import TripCard from "@/components/trips/ui/trip-card";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
+import { usePreferences } from "@/hooks/use-preferences";
+import { usePush } from "@/hooks/use-push";
 import { useTheme } from "@/hooks/use-theme";
 import { todayISO } from "@/utils/dates";
 
@@ -28,6 +30,8 @@ function tabOf(b: Booking, today: string): Tab {
 
 export default function TripsScreen() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
+  const { syncReminders } = usePush();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [tab, setTab] = useState<Tab>("upcoming");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -51,8 +55,9 @@ export default function TripsScreen() {
     try {
       await bookingsApi.cancel(id);
       reload();
+      void syncReminders();
     } catch (e) {
-      setActionError(getErrorMessage(e, "Could not cancel the booking."));
+      setActionError(getErrorMessage(e, t("Could not cancel the booking.")));
     } finally {
       setCancellingId(null);
     }
@@ -61,12 +66,12 @@ export default function TripsScreen() {
   const header = (
     <View>
       <View style={styles.tabs}>
-        {TABS.map((t) => (
+        {TABS.map((item) => (
           <Chip
-            key={t.value}
-            label={`${t.label} (${all.filter((b) => tabOf(b, today) === t.value).length})`}
-            active={tab === t.value}
-            onPress={() => setTab(t.value)}
+            key={item.value}
+            label={`${t(item.label)} (${all.filter((b) => tabOf(b, today) === item.value).length})`}
+            active={tab === item.value}
+            onPress={() => setTab(item.value)}
           />
         ))}
       </View>
@@ -76,7 +81,7 @@ export default function TripsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <Text style={styles.title}>My Trips</Text>
+      <Text style={styles.title}>{t("My Trips")}</Text>
       <Catalog
         data={items}
         loading={loading}
@@ -87,8 +92,8 @@ export default function TripsScreen() {
         header={header}
         keyExtractor={(b) => b.id}
         contentContainerStyle={styles.list}
-        emptyTitle={tab === "upcoming" ? "No upcoming trips" : tab === "past" ? "No past trips" : "No cancelled bookings"}
-        emptyText={tab === "upcoming" ? "Book a flight or a hotel and it will show up here." : "Nothing here yet."}
+        emptyTitle={t(tab === "upcoming" ? "No upcoming trips" : tab === "past" ? "No past trips" : "No cancelled bookings")}
+        emptyText={t(tab === "upcoming" ? "Book a flight or a hotel and it will show up here." : "Nothing here yet.")}
         renderItem={({ item }) => (
           <TripCard
             booking={item}

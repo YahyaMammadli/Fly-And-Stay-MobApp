@@ -3,13 +3,15 @@ import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
 import { CalendarDay } from "@/api/types";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
-import { formatMoney, formatShort, formatWeekday } from "@/utils/dates";
+import { formatShort, formatWeekday } from "@/utils/dates";
 
 type Props = { days: CalendarDay[]; selected: string; onSelect: (date: string) => void };
 
 export default function DateStrip({ days, selected, onSelect }: Props) {
   const { colors } = useTheme();
+  const { formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (

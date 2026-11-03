@@ -56,7 +56,7 @@ export default function Sheet({ visible, title, onClose, children, footer, scrol
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, justifyContent: "flex-end" },
-    backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: colors.overlay },
+    backdrop: { ...StyleSheet.absoluteFill, backgroundColor: colors.overlay },
     sheet: {
       maxHeight: "88%",
       backgroundColor: colors.card,

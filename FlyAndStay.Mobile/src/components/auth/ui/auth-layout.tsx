@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 type Props = {
@@ -23,6 +24,7 @@ type Props = {
 
 export default function AuthLayout({ title, subtitle, children, footer }: Props) {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { width, height } = useWindowDimensions();
 
@@ -50,7 +52,7 @@ export default function AuthLayout({ title, subtitle, children, footer }: Props)
             <Ionicons name="paper-plane" size={34} color={colors.white} />
           </View>
           <Text style={styles.brand}>Fly&Stay</Text>
-          <Text style={styles.tagline}>Flights • Hotels • Your Next Trip</Text>
+          <Text style={styles.tagline}>{t("Flights • Hotels • Your Next Trip")}</Text>
         </View>
 
         <View style={styles.card}>

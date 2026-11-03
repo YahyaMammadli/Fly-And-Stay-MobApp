@@ -4,8 +4,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { HotelSummary } from "@/api/types";
 import { ThemeColors } from "@/constants/theme";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
-import { formatMoney } from "@/utils/dates";
 import HotelCover from "./hotel-cover";
 
 type Props = { hotel: HotelSummary; onPress: () => void };
@@ -23,6 +23,7 @@ export const AMENITY_ICONS: Record<string, ComponentProps<typeof Ionicons>["name
 
 export default function HotelCard({ hotel, onPress }: Props) {
   const { colors } = useTheme();
+  const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
@@ -51,10 +52,10 @@ export default function HotelCard({ hotel, onPress }: Props) {
         <View style={styles.bottom}>
           <Text style={styles.price}>
             {formatMoney(hotel.pricePerNight)}
-            <Text style={styles.night}> /night</Text>
+            <Text style={styles.night}>{t(" /night")}</Text>
           </Text>
           <View style={styles.view}>
-            <Text style={styles.viewText}>View details</Text>
+            <Text style={styles.viewText}>{t("View details")}</Text>
           </View>
         </View>
       </View>

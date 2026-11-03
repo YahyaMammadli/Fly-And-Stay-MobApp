@@ -29,7 +29,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.Configure<ExpoPushSettings>(configuration.GetSection(ExpoPushSettings.SectionName));
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("Default")));
+            options.UseSqlServer(configuration.GetConnectionString("Default"), sql => sql
+                .EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null)
+                .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

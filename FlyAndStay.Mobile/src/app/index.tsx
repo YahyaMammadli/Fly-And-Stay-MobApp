@@ -6,10 +6,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { ThemeColors } from "@/constants/theme";
 import { useAuth } from "@/hooks/use-auth";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function Index() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { user, loading } = useAuth();
@@ -37,7 +39,7 @@ export default function Index() {
       <View style={styles.logoBlock}>
         <Ionicons name="paper-plane" size={84} color={colors.white} />
         <Text style={styles.brand}>Fly&Stay</Text>
-        <Text style={styles.tagline}>Flights • Hotels • Your Next Trip</Text>
+        <Text style={styles.tagline}>{t("Flights • Hotels • Your Next Trip")}</Text>
       </View>
 
       {ready && (
@@ -46,10 +48,10 @@ export default function Index() {
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
             onPress={() => router.push("/auth/sign-up")}
           >
-            <Text style={styles.primaryText}>Get Started</Text>
+            <Text style={styles.primaryText}>{t("Get Started")}</Text>
           </Pressable>
           <Pressable onPress={() => router.push("/auth/sign-in")} hitSlop={10}>
-            <Text style={styles.loginText}>Log In</Text>
+            <Text style={styles.loginText}>{t("Log In")}</Text>
           </Pressable>
         </View>
       )}

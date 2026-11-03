@@ -8,10 +8,12 @@ import Models from "@/components/models/ui/models";
 import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function ModelsScreen() {
   const { colors } = useTheme();
+  const { t } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -22,7 +24,7 @@ export default function ModelsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <ScreenHeader title="Airlines & fleet" subtitle="Pick an airline to see its aircraft" fallbackHref="/profile" />
+      <ScreenHeader title={t("Airlines & fleet")} subtitle={t("Pick an airline to see its aircraft")} fallbackHref="/profile" />
 
       <View style={styles.brands}>
         <Brands

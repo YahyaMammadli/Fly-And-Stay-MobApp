@@ -24,14 +24,16 @@ import ScreenHeader from "@/components/shared/ui/screen-header";
 import SortSheet from "@/components/shared/ui/sort-sheet";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import { useTrip } from "@/hooks/use-trip";
-import { formatRange, plural } from "@/utils/dates";
+import { formatRange } from "@/utils/dates";
 
 const SEARCH_KEYS = ["name", "district"] as const;
 
 export default function HotelsScreen() {
   const { colors } = useTheme();
+  const { t, toUsd, formatAmount } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { search } = useTrip();
@@ -45,32 +47,32 @@ export default function HotelsScreen() {
 
   const filtersKey = JSON.stringify(filters);
   const hotels = useFetch(
-    (signal) => travelApi.searchHotels(toHotelParams(search.destination, search.guests, filters, sort), signal),
-    [search.destination, search.guests, filtersKey, sort],
+    (signal) => travelApi.searchHotels(toHotelParams(search.destination, search.guests, filters, sort, toUsd), signal),
+    [search.destination, search.guests, filtersKey, sort, toUsd],
   );
 
   const activeCount = countHotelFilters(filters);
-  const sortLabel = HOTEL_SORTS.find((s) => s.value === sort)?.label ?? "Sort";
+  const sortLabel = t(HOTEL_SORTS.find((s) => s.value === sort)?.label ?? "Sort");
 
   const header = (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
       <Chip label={sortLabel} dropdown onPress={() => setSortOpen(true)} />
-      <Chip label={priceLabel(filters)} dropdown active={priceActive(filters)} onPress={() => setSection("price")} />
+      <Chip label={priceLabel(filters, formatAmount, t)} dropdown active={priceActive(filters)} onPress={() => setSection("price")} />
       <Chip
-        label={filters.minRating ? `${filters.minRating}+ rating` : "Rating"}
+        label={filters.minRating ? t("{rating}+ rating", { rating: filters.minRating }) : t("Rating")}
         dropdown
         active={ratingActive(filters)}
         onPress={() => setSection("rating")}
       />
-      <Chip label="More" dropdown active={moreActive(filters)} onPress={() => setSection("more")} />
+      <Chip label={t("More")} dropdown active={moreActive(filters)} onPress={() => setSection("more")} />
     </ScrollView>
   );
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScreenHeader
-        title={`Hotels in ${search.destination}`}
-        subtitle={`${formatRange(search.checkIn, search.checkOut)} · 1 Room, ${plural(search.guests, "Guest")}`}
+        title={search.destination ? t("Hotels in {city}", { city: search.destination }) : t("Hotels")}
+        subtitle={`${formatRange(search.checkIn, search.checkOut)} · ${t("1 Room")}, ${t(search.guests === 1 ? "{count} Guest" : "{count} Guests", { count: search.guests })}`}
       />
 
       <View style={styles.listWrap}>
@@ -83,12 +85,12 @@ export default function HotelsScreen() {
           onRefresh={hotels.reload}
           header={header}
           searchKeys={[...SEARCH_KEYS]}
-          searchPlaceholder={`Search in ${search.destination}`}
+          searchPlaceholder={search.destination ? t("Search in {city}", { city: search.destination }) : t("Search hotels")}
           keyExtractor={(h) => h.slug}
           contentContainerStyle={styles.list}
-          emptyTitle="No hotels found"
-          emptyText="Try another destination, or remove some filters."
-          emptyAction={activeCount ? { label: "Clear filters", onPress: () => setFilters(emptyHotelFilters) } : undefined}
+          emptyTitle={t("No hotels found")}
+          emptyText={t("Try another destination, or remove some filters.")}
+          emptyAction={activeCount ? { label: t("Clear filters"), onPress: () => setFilters(emptyHotelFilters) } : undefined}
           renderItem={({ item }) => (
             <HotelCard hotel={item} onPress={() => router.push({ pathname: "/hotel/[slug]", params: { slug: item.slug } })} />
           )}
