@@ -6,8 +6,8 @@ role-based authorization and password reset through an e-mail code.
 ## Structure
 
 ```
-FlyAndStay.sln
-src/
+FlyAndStay/
+  FlyAndStay.sln
   FlyAndStay.Domain          entities and enums: data only, no behaviour
   FlyAndStay.Application     services (use cases), repository and security abstractions, DTOs, filters, exceptions
   FlyAndStay.Infrastructure  EF Core + SQL Server, repositories, unit of work, JWT, PBKDF2, OTP, SMTP, seeding
@@ -28,19 +28,19 @@ entities contain only properties (plus read-only computed ones), all logic lives
 Requirements: .NET 8 SDK (Visual Studio 2022 17.8 or newer), SQL Server (LocalDB on Windows is the default connection string).
 
 ```bash
-cd src/FlyAndStay.Api
-dotnet run
+cd FlyAndStay
+dotnet run --project FlyAndStay.Api --launch-profile http
 ```
 
-The API listens on `http://0.0.0.0:5080`. On the first start the database `FlyAndStay` is created and filled with demo data
-(airports, airlines, aircraft, 17 hotels, ~90 days of flights). In Development an admin user is created:
-`admin@flyandstay.app` / `Admin12345!` (see `appsettings.Development.json`, section `Seed`).
+The API listens on `http://0.0.0.0:5080`. On the first start the database `FlyAndStay_DB` is created, migrations are applied and demo data is seeded
+(airports, airlines, aircraft, 17 hotels, ~90 days of flights). An admin user is created from the `Seed` section
+(`AdminEmail`, `AdminPassword`): set them in `appsettings.Development.json` or user secrets, never in a committed file.
 
 If `dotnet` cannot find the solution projects, create the solution file yourself:
 
 ```bash
 dotnet new sln -n FlyAndStay
-dotnet sln add src/FlyAndStay.Domain src/FlyAndStay.Application src/FlyAndStay.Infrastructure src/FlyAndStay.Api
+dotnet sln add FlyAndStay/FlyAndStay.Domain FlyAndStay/FlyAndStay.Application FlyAndStay/FlyAndStay.Infrastructure FlyAndStay/FlyAndStay.Api
 ```
 
 ### SQL Server in Docker
@@ -48,26 +48,24 @@ dotnet sln add src/FlyAndStay.Domain src/FlyAndStay.Application src/FlyAndStay.I
 ```bash
 docker run -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Your_strong_Passw0rd' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
-cd src/FlyAndStay.Api
+cd FlyAndStay/FlyAndStay.Api
 dotnet user-secrets init
 dotnet user-secrets set "ConnectionStrings:Default" "Server=localhost,1433;Database=FlyAndStay;User Id=sa;Password=Your_strong_Passw0rd;TrustServerCertificate=True"
 ```
 
 ### Migrations
 
-Without migrations the database is created with `EnsureCreated`. To use migrations:
+Migrations live in `FlyAndStay.Infrastructure/Migrations` and are applied automatically on start. To add a new one:
 
 ```bash
 dotnet tool install --global dotnet-ef
-dotnet ef migrations add InitialCreate -p src/FlyAndStay.Infrastructure -s src/FlyAndStay.Api
+dotnet ef migrations add <Name> -p FlyAndStay/FlyAndStay.Infrastructure -s FlyAndStay/FlyAndStay.Api
 ```
-
-When at least one migration exists, the API applies migrations on start instead of `EnsureCreated`.
 
 ### E-mail (password reset codes)
 
 ```bash
-cd src/FlyAndStay.Api
+cd FlyAndStay/FlyAndStay.Api
 dotnet user-secrets set "Smtp:Host" "smtp.gmail.com"
 dotnet user-secrets set "Smtp:Port" "587"
 dotnet user-secrets set "Smtp:User" "you@gmail.com"
@@ -135,10 +133,10 @@ Settings (`appsettings.json`): `ExpoPush:Enabled` (when `false`, pushes are only
 
 ## Other endpoints
 
-`GET /api/airports`, `/api/destinations`, `/api/airlines`, `/api/airlines/{slug}/aircraft`,
+`GET /api/airports`, `/api/destinations?from={code}`, `/api/airlines`, `/api/airlines/{slug}/aircraft`,
 `/api/flights/search`, `/api/flights/calendar`, `/api/flights/{id}`,
 `/api/hotels`, `/api/hotels/amenities`, `/api/hotels/{slug}`,
 `/api/users/me` (+ `/photo`), `/api/bookings`.
-See `src/FlyAndStay.Api/FlyAndStay.Api.http` for ready-made requests.
+See `FlyAndStay/FlyAndStay.Api/FlyAndStay.Api.http` for ready-made requests.
 
 Prices of a booking are always calculated on the server. Fleets, schedules and prices are demo data.

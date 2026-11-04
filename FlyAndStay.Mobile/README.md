@@ -27,6 +27,11 @@ For production builds set `EXPO_PUBLIC_API_URL` (see `.env.example`).
 * **Airlines & fleet** screen: `<Brands/>` + `<Models/>` with `selectedSlug / setSelectedSlug`.
 * Filters and sorting for flights (airlines, stops, price, departure time, baggage, aircraft) and hotels (price, rating, stars, amenities, distance).
 * Booking flow: flight details, hotel details, summary, confirmation, My Trips with cancellation.
+* **Maps** (`components/shared/ui/travel-map.tsx`): MapLibre GL JS + OpenFreeMap tiles in a WebView, no API keys.
+  Hotel location block, hotels List/Map switch, flight path on flight details, Explore map of fares,
+  "Getting to your hotel" route (OSRM) with directions in Google Maps / Apple Maps. Providers can be changed in `.env`
+  (`EXPO_PUBLIC_MAP_STYLE_LIGHT`, `EXPO_PUBLIC_MAP_STYLE_DARK`, `EXPO_PUBLIC_ROUTING_URL`).
+* **12 languages** (i18next, `src/i18n/locales`), **27 currencies**, automatic light/dark theme, geolocation for the nearest airport.
 
 ## Push notifications
 
@@ -48,7 +53,8 @@ Requirements (Expo rules):
 ## Screens
 
 Welcome, Sign up, Log in, Forgot password, Home, Flights, Flight details, Hotels, Hotel details,
-Booking summary, Booking confirmed, My Trips, Profile, Edit profile, Airlines & fleet, Notifications.
+Booking summary, Booking confirmed, My Trips, Profile, Edit profile, Airlines & fleet, Notifications,
+Explore (map of fares), Getting to your hotel (route).
 
 ## Notes
 
