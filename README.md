@@ -222,4 +222,16 @@ Ready-made requests are in `FlyAndStay.Api/FlyAndStay.Api.http`. The full descri
 
 ## License
 
-No license has been chosen yet; all rights reserved by the author.
+The source code is released under the [MIT License](LICENSE) © 2026 Yahya Mammadli.
+
+Third-party services and data used by the app keep their own licenses:
+
+| Component | License / terms |
+|---|---|
+| [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js) | BSD-3-Clause |
+| Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors | ODbL 1.0 (attribution shown on every map) |
+| [OpenFreeMap](https://openfreemap.org) tiles and styles, [OpenMapTiles](https://openmaptiles.org) schema | free use with attribution |
+| [OSRM](https://project-osrm.org) routing | BSD-2-Clause; the public demo server has a usage policy for light use only |
+| Expo, React Native and npm / NuGet packages | their own licenses (mostly MIT), see `package.json` and the `.csproj` files |
+
+Schedules, fares and hotel prices in the seed data are demo content. Airline and aircraft names and logos belong to their owners; the project is not affiliated with them.
