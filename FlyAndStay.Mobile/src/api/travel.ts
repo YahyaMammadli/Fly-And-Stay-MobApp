@@ -40,7 +40,8 @@ export type HotelSearchParams = {
 
 export const travelApi = {
   airports: (signal?: AbortSignal) => api.get<Airport[]>("/api/airports", { signal }).then((r) => r.data),
-  destinations: (signal?: AbortSignal) => api.get<Destination[]>("/api/destinations", { signal }).then((r) => r.data),
+  destinations: (from: string | null, signal?: AbortSignal) =>
+    api.get<Destination[]>("/api/destinations", { params: from ? { from } : undefined, signal }).then((r) => r.data),
 
   airlines: (signal?: AbortSignal) => api.get<AirlineBrand[]>("/api/airlines", { signal }).then((r) => r.data),
   aircraft: (slug: string, signal?: AbortSignal) =>

@@ -49,6 +49,8 @@ function RootStack() {
         <Stack.Screen name="models" />
         <Stack.Screen name="edit-profile" />
         <Stack.Screen name="notifications" />
+        <Stack.Screen name="route" />
+        <Stack.Screen name="explore" />
       </Stack>
     </>
   );

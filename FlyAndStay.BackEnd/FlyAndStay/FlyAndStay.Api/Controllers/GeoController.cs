@@ -13,6 +13,6 @@ public class GeoController(IGeoService geo) : ControllerBase
         Ok(await geo.GetAirportsAsync(ct));
 
     [HttpGet("destinations")]
-    public async Task<ActionResult<List<DestinationDto>>> Destinations(CancellationToken ct) =>
-        Ok(await geo.GetDestinationsAsync(ct));
+    public async Task<ActionResult<List<DestinationDto>>> Destinations([FromQuery(Name = "from")] string? fromCode, CancellationToken ct) =>
+        Ok(await geo.GetDestinationsAsync(fromCode, ct));
 }

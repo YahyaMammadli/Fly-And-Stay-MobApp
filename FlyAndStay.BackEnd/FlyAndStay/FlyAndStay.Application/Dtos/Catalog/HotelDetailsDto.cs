@@ -8,6 +8,8 @@ public record HotelDetailsDto(
     string District,
     string Address,
     decimal DistanceToCenterKm,
+    double Latitude,
+    double Longitude,
     int Stars,
     decimal Rating,
     int ReviewCount,

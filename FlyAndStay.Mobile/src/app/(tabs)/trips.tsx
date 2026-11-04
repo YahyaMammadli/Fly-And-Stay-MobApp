@@ -98,6 +98,7 @@ export default function TripsScreen() {
           <TripCard
             booking={item}
             canCancel={tab === "upcoming"}
+            showRoute={tab === "upcoming"}
             cancelling={cancellingId === item.id}
             onCancel={() => cancel(item.id)}
           />

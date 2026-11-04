@@ -7,12 +7,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { travelApi } from "@/api/travel";
 import Button from "@/components/shared/ui/button";
 import ScreenHeader from "@/components/shared/ui/screen-header";
+import TravelMap from "@/components/shared/ui/travel-map";
 import { ThemeColors } from "@/constants/theme";
 import { useFetch } from "@/hooks/use-fetch";
 import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 import { useTrip } from "@/hooks/use-trip";
 import { formatDuration, formatLong, formatTime } from "@/utils/dates";
+import { distanceKm, formatKm, greatCircle, hasCoords } from "@/utils/maps";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -100,6 +102,25 @@ export default function FlightDetailsScreen() {
               </View>
             </View>
 
+            {hasCoords(flight.from) && hasCoords(flight.to) && (
+              <View style={styles.mapCard}>
+                <TravelMap
+                  interactive={false}
+                  style={styles.map}
+                  padding={{ top: 24 }}
+                  markers={[
+                    { id: "from", latitude: flight.from.latitude, longitude: flight.from.longitude, kind: "airport", label: flight.from.code },
+                    { id: "to", latitude: flight.to.latitude, longitude: flight.to.longitude, kind: "airport", label: flight.to.code },
+                  ]}
+                  lines={[{ id: "arc", kind: "arc", points: greatCircle(flight.from, flight.to) }]}
+                />
+                <View style={styles.distance}>
+                  <Ionicons name="globe-outline" size={13} color={colors.primary} />
+                  <Text style={styles.distanceText}>{formatKm(distanceKm(flight.from, flight.to))}</Text>
+                </View>
+              </View>
+            )}
+
             <View style={styles.infoBox}>
               {info.map((row) => (
                 <View key={row.label} style={styles.infoRow}>
@@ -167,7 +188,23 @@ const createStyles = (colors: ThemeColors) =>
     code: { fontSize: 14, fontWeight: "800", color: colors.text, marginTop: 6 },
     city: { fontSize: 12, color: colors.text },
     airport: { fontSize: 11, color: colors.muted },
-    infoBox: { backgroundColor: colors.primarySoft, borderRadius: 16, padding: 14, gap: 14, marginTop: 24 },
+    mapCard: { marginTop: 20, borderRadius: 20, overflow: "hidden" },
+    map: { height: 160 },
+    distance: {
+      position: "absolute",
+      top: 10,
+      left: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      paddingHorizontal: 10,
+      height: 26,
+      borderRadius: 13,
+      backgroundColor: colors.card,
+      boxShadow: colors.shadow,
+    },
+    distanceText: { fontSize: 12, fontWeight: "800", color: colors.text },
+    infoBox: { backgroundColor: colors.primarySoft, borderRadius: 16, padding: 14, gap: 14, marginTop: 20 },
     infoRow: { flexDirection: "row", alignItems: "center", gap: 12 },
     infoLabel: { fontSize: 11, color: colors.muted },
     infoValue: { fontSize: 13, fontWeight: "600", color: colors.text, marginTop: 1 },

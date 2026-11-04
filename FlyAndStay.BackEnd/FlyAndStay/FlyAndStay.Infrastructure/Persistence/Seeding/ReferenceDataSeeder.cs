@@ -11,7 +11,10 @@ public sealed class ReferenceDataSeeder(ApplicationDbContext db)
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await db.Airports.AnyAsync(ct))
+        {
+            await SyncCoordinatesAsync(ct);
             return;
+        }
 
         var airlines = AirlineSeedData.Create();
         var aircraft = AircraftSeedData.Create();
@@ -34,6 +37,32 @@ public sealed class ReferenceDataSeeder(ApplicationDbContext db)
         await db.SaveChangesAsync(ct);
     }
 
+    /// <summary>Databases seeded before coordinates existed get them filled in from the seed data.</summary>
+    private async Task SyncCoordinatesAsync(CancellationToken ct)
+    {
+        var airportSeeds = AirportSeedData.Create().ToDictionary(a => a.Code);
+        foreach (var airport in await db.Airports.ToListAsync(ct))
+        {
+            if (airportSeeds.TryGetValue(airport.Code.Trim(), out var seed))
+            {
+                airport.Latitude = seed.Latitude;
+                airport.Longitude = seed.Longitude;
+            }
+        }
+
+        var hotelSeeds = HotelSeedData.All.ToDictionary(h => h.Slug);
+        foreach (var hotel in await db.Hotels.ToListAsync(ct))
+        {
+            if (hotelSeeds.TryGetValue(hotel.Slug, out var seed))
+            {
+                hotel.Latitude = seed.Latitude;
+                hotel.Longitude = seed.Longitude;
+            }
+        }
+
+        await db.SaveChangesAsync(ct);
+    }
+
     private static Hotel CreateHotel(HotelSeed seed, IReadOnlyList<Amenity> amenities)
     {
         var price = (decimal)seed.Price;
@@ -48,6 +77,8 @@ public sealed class ReferenceDataSeeder(ApplicationDbContext db)
             District = seed.District,
             Address = $"{seed.District}, {seed.City}",
             DistanceToCenterKm = seed.Distance,
+            Latitude = seed.Latitude,
+            Longitude = seed.Longitude,
             Stars = seed.Stars,
             Rating = seed.Rating,
             ReviewCount = seed.Reviews,

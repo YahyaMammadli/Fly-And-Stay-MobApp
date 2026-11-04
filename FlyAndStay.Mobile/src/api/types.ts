@@ -13,7 +13,7 @@ export type AuthResponse = {
   user: User;
 };
 
-export type Airport = { code: string; city: string; country: string; name: string };
+export type Airport = { code: string; city: string; country: string; name: string; latitude: number; longitude: number };
 export type Destination = {
   city: string;
   airportCode: string;
@@ -22,6 +22,8 @@ export type Destination = {
   fromPrice: number | null;
   color: string;
   icon: string;
+  latitude: number;
+  longitude: number;
 };
 
 export type Airline = { slug: string; code: string; name: string; color: string };
@@ -68,6 +70,8 @@ export type HotelSummary = {
   city: string;
   district: string;
   distanceToCenterKm: number;
+  latitude: number;
+  longitude: number;
   stars: number;
   rating: number;
   reviewCount: number;
@@ -94,6 +98,9 @@ export type BookedStay = {
   nights: number;
   pricePerNight: number;
   coverColor: string;
+  address: string;
+  latitude: number;
+  longitude: number;
 };
 export type Booking = {
   id: string;

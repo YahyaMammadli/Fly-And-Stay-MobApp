@@ -9,4 +9,7 @@ public record BookedStayDto(
     string CheckOut,
     int Nights,
     decimal PricePerNight,
-    string CoverColor);
+    string CoverColor,
+    string Address,
+    double Latitude,
+    double Longitude);

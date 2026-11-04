@@ -12,13 +12,16 @@ public sealed class GeoService(IAirportRepository airports, IFlightRepository fl
     public async Task<List<AirportDto>> GetAirportsAsync(CancellationToken ct) =>
         (await airports.GetAllAsync(ct)).Select(a => a.ToDto()).ToList();
 
-    public async Task<List<DestinationDto>> GetDestinationsAsync(CancellationToken ct)
+    public async Task<List<DestinationDto>> GetDestinationsAsync(string? fromCode, CancellationToken ct)
     {
-        var now = clock.GetLocalNow().DateTime;
-        var prices = await flights.GetMinPricesFromAsync(HomeAirport, now, ct);
+        var all = await airports.GetAllAsync(ct);
+        var origin = all.FirstOrDefault(a => string.Equals(a.Code, fromCode?.Trim(), StringComparison.OrdinalIgnoreCase))?.Code ?? HomeAirport;
 
-        return (await airports.GetAllAsync(ct))
-            .Where(a => a.Code != HomeAirport)
+        var now = clock.GetLocalNow().DateTime;
+        var prices = await flights.GetMinPricesFromAsync(origin, now, ct);
+
+        return all
+            .Where(a => a.Code != origin)
             .Select(a => new DestinationDto(
                 a.City,
                 a.Code,
@@ -26,7 +29,9 @@ public sealed class GeoService(IAirportRepository airports, IFlightRepository fl
                 a.Country,
                 prices.Where(p => p.AirportCode == a.Code).Select(p => (decimal?)p.MinPrice).FirstOrDefault(),
                 a.CoverColor,
-                a.Icon))
+                a.Icon,
+                a.Latitude,
+                a.Longitude))
             .OrderBy(d => d.FromPrice ?? decimal.MaxValue)
             .ToList();
     }

@@ -8,6 +8,7 @@ import { travelApi } from "@/api/travel";
 import { Room } from "@/api/types";
 import HotelCover from "@/components/hotels/ui/hotel-cover";
 import { AMENITY_ICONS } from "@/components/hotels/ui/hotel-card";
+import HotelLocation from "@/components/hotels/ui/hotel-location";
 import Button from "@/components/shared/ui/button";
 import ScreenHeader from "@/components/shared/ui/screen-header";
 import { ThemeColors } from "@/constants/theme";
@@ -84,6 +85,8 @@ export default function HotelDetailsScreen() {
           </View>
 
           <Text style={styles.description}>{hotel.description}</Text>
+
+          <HotelLocation hotel={hotel} />
 
           <Text style={styles.section}>{t("Room options")}</Text>
           <Text style={styles.stay}>

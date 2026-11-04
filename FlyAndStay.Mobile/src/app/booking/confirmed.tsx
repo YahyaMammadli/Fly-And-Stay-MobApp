@@ -4,8 +4,11 @@ import { useMemo } from "react";
 import { Pressable, Share, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { bookingsApi } from "@/api/bookings";
 import Button from "@/components/shared/ui/button";
+import HotelRouteLink from "@/components/trips/ui/hotel-route-link";
 import { ThemeColors } from "@/constants/theme";
+import { useFetch } from "@/hooks/use-fetch";
 import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -14,7 +17,9 @@ export default function BookingConfirmedScreen() {
   const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
-  const { reference, total } = useLocalSearchParams<{ reference?: string; total?: string }>();
+  const { id, reference, total } = useLocalSearchParams<{ id?: string; reference?: string; total?: string }>();
+  // Only needed for the "Getting to your hotel" shortcut; the screen works without it.
+  const { data: booking } = useFetch((signal) => bookingsApi.get(id!, signal), [id], !!id);
 
   const share = () => {
     Share.share({ message: `My Fly&Stay booking reference: ${reference}` }).catch(() => {});
@@ -39,6 +44,8 @@ export default function BookingConfirmedScreen() {
             <Ionicons name="share-outline" size={22} color={colors.primary} />
           </Pressable>
         </View>
+
+        {booking?.stay && <HotelRouteLink booking={booking} style={styles.route} />}
 
         <View style={styles.actions}>
           <Button title={t("View My Trips")} onPress={() => router.replace("/trips")} />
@@ -78,6 +85,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     refLabel: { fontSize: 11, color: colors.muted },
     refValue: { fontSize: 16, fontWeight: "800", color: colors.text, marginTop: 2 },
+    route: { width: "100%", marginTop: 12 },
     actions: { width: "100%", gap: 12, marginTop: 24 },
     skyline: { flexDirection: "row", alignItems: "flex-end", justifyContent: "center", gap: 18, paddingBottom: 8, backgroundColor: colors.primarySoft, height: 110 },
   });

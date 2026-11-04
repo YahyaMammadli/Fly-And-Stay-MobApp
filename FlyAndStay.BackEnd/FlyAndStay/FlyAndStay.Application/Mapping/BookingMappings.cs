@@ -21,7 +21,10 @@ public static class BookingMappings
                 booking.CheckOut.Value.ToIso(),
                 nights,
                 booking.Room.PricePerNight,
-                booking.Room.Hotel.CoverColor);
+                booking.Room.Hotel.CoverColor,
+                booking.Room.Hotel.Address,
+                booking.Room.Hotel.Latitude,
+                booking.Room.Hotel.Longitude);
         }
 
         var flight = booking.Flight?.ToDto();

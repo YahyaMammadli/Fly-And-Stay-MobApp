@@ -9,6 +9,8 @@ public class Hotel
     public string District { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public decimal DistanceToCenterKm { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
     public int Stars { get; set; }
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }

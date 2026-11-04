@@ -105,7 +105,7 @@ export default function BookingSummaryScreen() {
       void syncReminders();
       router.replace({
         pathname: "/booking/confirmed",
-        params: { reference: booking.reference, total: String(booking.total) },
+        params: { id: booking.id, reference: booking.reference, total: String(booking.total) },
       });
     } catch (e) {
       setError(getErrorMessage(e, t("Could not complete the booking. Please try again.")));

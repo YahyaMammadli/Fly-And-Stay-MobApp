@@ -11,4 +11,6 @@ public sealed record HotelSeed(
     int Reviews,
     int Price,
     string Color,
-    string[] Amenities);
+    string[] Amenities,
+    double Latitude,
+    double Longitude);

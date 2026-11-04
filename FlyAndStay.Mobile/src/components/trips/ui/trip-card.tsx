@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { Booking } from "@/api/types";
 import Button from "@/components/shared/ui/button";
+import HotelRouteLink from "@/components/trips/ui/hotel-route-link";
 import { ThemeColors } from "@/constants/theme";
 import { usePreferences } from "@/hooks/use-preferences";
 import { useTheme } from "@/hooks/use-theme";
@@ -12,11 +13,13 @@ import { formatLong, formatRange, formatTime, plural } from "@/utils/dates";
 type Props = {
   booking: Booking;
   canCancel: boolean;
+  /** Upcoming trips get a "Getting to your hotel" shortcut. */
+  showRoute?: boolean;
   cancelling: boolean;
   onCancel: () => void;
 };
 
-export default function TripCard({ booking, canCancel, cancelling, onCancel }: Props) {
+export default function TripCard({ booking, canCancel, showRoute, cancelling, onCancel }: Props) {
   const { colors } = useTheme();
   const { t, formatMoney } = usePreferences();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -64,6 +67,8 @@ export default function TripCard({ booking, canCancel, cancelling, onCancel }: P
           </View>
         </View>
       )}
+
+      {showRoute && !cancelled && <HotelRouteLink booking={booking} />}
 
       <View style={styles.foot}>
         <Text style={styles.total}>{formatMoney(booking.total)}</Text>

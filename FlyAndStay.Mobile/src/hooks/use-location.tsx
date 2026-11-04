@@ -7,7 +7,14 @@ import { LOCATION_KEY, LOCATION_PROMPTED_KEY } from "@/constants/storage";
 
 export type LocationStatus = "unknown" | "granted" | "denied";
 
-export type UserLocation = { countryCode: string | null; country: string | null; city: string | null };
+export type UserLocation = {
+  countryCode: string | null;
+  country: string | null;
+  city: string | null;
+  /** Missing in values cached by older app versions. */
+  latitude?: number;
+  longitude?: number;
+};
 
 type LocationContextValue = {
   status: LocationStatus;
@@ -56,7 +63,9 @@ async function readLocation(allowFreshFix: boolean): Promise<UserLocation | null
   position ??= await Location.getLastKnownPositionAsync();
   if (!position) return null;
 
-  return reverseGeocode(position.coords.latitude, position.coords.longitude);
+  const { latitude, longitude } = position.coords;
+  const place = await reverseGeocode(latitude, longitude).catch(() => null);
+  return place ? { ...place, latitude, longitude } : null;
 }
 
 export function LocationProvider({ children }: { children: ReactNode }) {

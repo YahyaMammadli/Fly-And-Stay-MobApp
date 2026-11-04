@@ -33,9 +33,11 @@ export default function HomeScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { user } = useAuth();
-  const { updateSearch } = useTrip();
+  const { search, updateSearch } = useTrip();
   const { unreadCount } = usePush();
-  const { data, loading, error, reload } = useFetch((signal) => travelApi.destinations(signal), []);
+  // "From $X" prices follow the chosen departure airport.
+  const originCode = search.from?.code ?? null;
+  const { data, loading, error, reload } = useFetch((signal) => travelApi.destinations(originCode, signal), [originCode]);
 
   // Ask for the location once, so "From" and the currency can follow where the user is.
   useEffect(() => {
@@ -43,7 +45,9 @@ export default function HomeScreen() {
   }, [requestOnce]);
 
   const openDestination = (d: Destination) => {
-    updateSearch({ to: { code: d.airportCode, city: d.city, country: d.country, name: d.airportName } });
+    updateSearch({
+      to: { code: d.airportCode, city: d.city, country: d.country, name: d.airportName, latitude: d.latitude, longitude: d.longitude },
+    });
     router.navigate("/flights");
   };
 
@@ -105,6 +109,19 @@ export default function HomeScreen() {
             <View style={styles.bannerText}>
               <Text style={styles.bannerTitle}>{t("Find your perfect stay")}</Text>
               <Text style={styles.bannerSub}>{t("Hotels in top destinations")}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+          </Pressable>
+
+          <Pressable style={styles.banner} onPress={() => router.push("/explore")}>
+            <View style={styles.bannerIcon}>
+              <Ionicons name="map" size={22} color={colors.primary} />
+            </View>
+            <View style={styles.bannerText}>
+              <Text style={styles.bannerTitle}>{t("Explore on the map")}</Text>
+              <Text style={styles.bannerSub}>
+                {search.from ? t("Cheapest fares from {city}", { city: search.from.city }) : t("Cheapest fares to every destination")}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.muted} />
           </Pressable>
